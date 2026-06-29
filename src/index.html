@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Brainy">
 <meta name="theme-color" content="#F3EEE3">
 <title>Brainy</title>
@@ -36,6 +37,7 @@
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
+  html { background: var(--bg-2); }
   body {
     color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -108,6 +110,34 @@
   .tab.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
   .tab.active .cnt { background: rgba(255,255,255,.18); color: var(--bg); }
   .tab .swatch { width: 9px; height: 9px; border-radius: 50%; }
+
+  /* ---------- Cuadro Finales ---------- */
+  .finales-card {
+    margin-top: 16px; background: linear-gradient(160deg, #F3E6DD 0%, var(--surface) 70%);
+    border: 1px solid #E3D2C5; border-radius: var(--radius); padding: 16px 16px 8px;
+    box-shadow: var(--shadow); animation: rise .45s var(--ease) backwards;
+  }
+  .finales-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .finales-title { font-family: var(--serif); font-size: 18px; font-weight: 600; color: #8a5a44; }
+  .finales-list { display: flex; flex-direction: column; }
+  .final-item { display: flex; align-items: center; gap: 12px; padding: 11px 4px; border-top: 1px solid rgba(160,128,111,.18); cursor: pointer; transition: opacity .15s; }
+  .final-item:first-child { border-top: none; }
+  .final-item:active { opacity: .6; }
+  .fi-info { flex: 1; min-width: 0; }
+  .fi-title { font-size: 15.5px; font-weight: 600; color: var(--ink); word-break: break-word; }
+  .fi-date { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+  .fi-count { flex: 0 0 auto; text-align: center; min-width: 52px; color: var(--clay); line-height: 1; }
+  .fi-count.today { color: var(--clay); } .fi-count.overdue { color: var(--danger); }
+  .fi-num { display: block; font-family: var(--serif); font-size: 27px; font-weight: 700; }
+  .fi-unit { display: block; font-size: 11px; font-weight: 600; color: var(--ink-faint); margin-top: 1px; text-transform: uppercase; letter-spacing: .4px; }
+  /* switch */
+  .switch { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; }
+  .switch input { display: none; }
+  .switch .slider { width: 38px; height: 22px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); position: relative; transition: background .25s var(--ease); }
+  .switch .slider::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .25s var(--spring); }
+  .switch input:checked + .slider { background: var(--sage); border-color: var(--sage); }
+  .switch input:checked + .slider::after { transform: translateX(16px); }
+  .switch .sw-txt { font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
 
   /* ---------- Lista ---------- */
   .group-label { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--ink-soft); margin: 22px 4px 2px; animation: fadeIn .4s ease backwards; }
@@ -199,6 +229,9 @@
   .chip.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
   .btn-primary { width: 100%; border: none; background: var(--sage); color: #fff; padding: 15px; border-radius: var(--radius-sm); font-size: 17px; font-weight: 600; cursor: pointer; margin-top: 6px; transition: transform .2s var(--spring), background .15s; }
   .btn-primary:active { transform: scale(.97); background: var(--sage-deep); }
+  .datetime-row { display: flex; gap: 10px; }
+  .datetime-row input[type=date] { flex: 1.4; }
+  .datetime-row input[type=time] { flex: 1; }
   .date-quick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 9px; }
   .date-quick button { border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft); padding: 7px 13px; border-radius: 999px; font-size: 14px; cursor: pointer; transition: all .2s var(--ease); }
   .date-quick button:active { transform: scale(.93); background: var(--surface-2); }
@@ -296,13 +329,16 @@
     <div class="chips" id="chipsCat"></div>
   </div>
   <div class="field">
-    <label>Fecha (opcional)</label>
-    <input type="date" id="inDate">
+    <label>Fecha y hora (opcional)</label>
+    <div class="datetime-row">
+      <input type="date" id="inDate">
+      <input type="time" id="inTime">
+    </div>
     <div class="date-quick">
       <button data-days="0">Hoy</button>
       <button data-days="1">Mañana</button>
       <button data-days="7">En 1 semana</button>
-      <button data-days="clear">Sin fecha</button>
+      <button data-days="clear">Limpiar</button>
     </div>
   </div>
   <button class="btn-primary" id="saveTask">Agregar</button>
@@ -397,6 +433,7 @@ async function bootstrap(){
     tasks = data.tareas || []; cats = data.categorias || [];
     DB.saveTareas(tasks); DB.saveCategorias(cats);
   }
+  ensureFinales();
   render(); if($("#sheetDone").classList.contains("open")) renderDone();
 }
 window.addEventListener("online", ()=>{ flush().then(bootstrap); });
@@ -420,7 +457,50 @@ let selectedCat = null;
 let selectedColor = PALETTE[0];
 let editingId = null;
 let loaded = !API_URL;   // en modo local ya está "cargado"
+const FINALES = "Finales";
+let finalesEnTodas = DB._read("brainy_fin_todas", true);
 const $ = s => document.querySelector(s);
+
+/* Asegura que exista la categoría especial "Finales". */
+function ensureFinales(){
+  if(!cats.some(c=>c.nombre===FINALES)){
+    const nueva={nombre:FINALES, color:"#A8806F"};
+    cats.push(nueva); DB.saveCategorias(cats); queue("agregarCategoria", nueva);
+  }
+}
+function fmtFecha(f){
+  const d=fechaParte(f); if(!d)return "";
+  const p=d.split("-"); const mes=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][(+p[1])-1];
+  return `${+p[2]} ${mes}`;
+}
+function renderFinalesCard(){
+  const fin = tasks.filter(t=>!t.completada && t.categoria===FINALES && t.fecha);
+  if(fin.length===0) return "";
+  fin.sort((a,b)=> daysUntil(a.fecha)-daysUntil(b.fecha));
+  const items = fin.map(t=>{
+    const n=daysUntil(t.fecha), hora=horaParte(t.fecha);
+    let big, unit;
+    if(n>1){ big=n; unit="días"; } else if(n===1){ big="1"; unit="día"; }
+    else if(n===0){ big="Hoy"; unit=""; } else { big=Math.abs(n); unit="d. tarde"; }
+    const cls = n<0?"overdue":(n===0?"today":"");
+    return `<div class="final-item" data-id="${t.id}">
+      <div class="fi-info"><div class="fi-title">${escapeHtml(t.titulo)}</div><div class="fi-date">${fmtFecha(t.fecha)}${hora?" · "+hora:""}</div></div>
+      <div class="fi-count ${cls}"><span class="fi-num">${big}</span>${unit?`<span class="fi-unit">${unit}</span>`:""}</div>
+    </div>`;
+  }).join("");
+  return `<div class="finales-card">
+    <div class="finales-head">
+      <div class="finales-title">🎓 Finales</div>
+      <label class="switch"><input type="checkbox" id="finToggle" ${finalesEnTodas?"checked":""}><span class="slider"></span><span class="sw-txt">En la lista</span></label>
+    </div>
+    <div class="finales-list">${items}</div>
+  </div>`;
+}
+function bindFinales(c){
+  const ft=c.querySelector("#finToggle");
+  if(ft) ft.onchange=()=>{ finalesEnTodas=ft.checked; DB._write("brainy_fin_todas", finalesEnTodas); toast(finalesEnTodas?"Finales en la lista":"Finales solo en su sección"); render(); };
+  c.querySelectorAll(".final-item").forEach(el=> el.onclick=()=>openEdit(el.dataset.id));
+}
 
 function skeletonHTML(){
   const row = `<div class="skel"><div class="sk-circle sk-shimmer"></div><div class="sk-lines"><div class="sk-line sk-shimmer" style="width:70%"></div><div class="sk-line sk-shimmer" style="width:40%"></div></div></div>`;
@@ -469,7 +549,9 @@ const ICON_TRASH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const ICON_PEN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
 
 function greeting(){ const h=new Date().getHours(); if(h<6)return "Buenas noches"; if(h<13)return "Buen día"; if(h<20)return "Buenas tardes"; return "Buenas noches"; }
-function daysUntil(f){ if(!f)return null; const t=new Date();t.setHours(0,0,0,0); return Math.round((new Date(f+"T00:00:00")-t)/86400000); }
+function fechaParte(f){ return f ? f.split("T")[0] : ""; }
+function horaParte(f){ return (f && f.includes("T")) ? f.split("T")[1] : ""; }
+function daysUntil(f){ const d=fechaParte(f); if(!d)return null; const t=new Date();t.setHours(0,0,0,0); return Math.round((new Date(d+"T00:00:00")-t)/86400000); }
 function countdownLabel(f){ const n=daysUntil(f); if(n===null)return null;
   if(n===0)return{txt:"Hoy",cls:"today"}; if(n===1)return{txt:"Mañana",cls:""};
   if(n>1)return{txt:`En ${n} días`,cls:""}; if(n===-1)return{txt:"Venció ayer",cls:"overdue"};
@@ -501,19 +583,21 @@ function renderTabs(){
 function render(){
   renderTabs(); renderProgress();
   const list=$("#list");
+  const finCard = activeTab==="__all__" ? renderFinalesCard() : "";
   let items=tasks.filter(t=>!t.completada);
-  if(activeTab!=="__all__") items=items.filter(t=>t.categoria===activeTab);
+  if(activeTab==="__all__"){ if(!finalesEnTodas) items=items.filter(t=>t.categoria!==FINALES); }
+  else { items=items.filter(t=>t.categoria===activeTab); }
   items.sort((a,b)=>{ if(!a.fecha&&!b.fecha)return b.ts-a.ts; if(!a.fecha)return 1; if(!b.fecha)return -1; return a.fecha.localeCompare(b.fecha); });
 
-  if(items.length===0){
+  if(items.length===0 && !finCard){
     if(!loaded){ list.innerHTML=skeletonHTML(); return; }
     list.innerHTML=`<div class="empty">${mascot("mascot-lg")}<p class="lead">Nada por acá.</p><p>Tu cabeza puede descansar.</p></div>`; return;
   }
 
   if(activeTab==="__all__"){
+    let h=finCard;
     const groups={hoy:[],prox:[],sin:[]};
     items.forEach(t=>{ const n=daysUntil(t.fecha); if(t.fecha&&n<=0)groups.hoy.push(t); else if(t.fecha)groups.prox.push(t); else groups.sin.push(t); });
-    let h="";
     if(groups.hoy.length) h+=`<div class="group-label">Hoy</div><div class="list">${groups.hoy.map(t=>taskHTML(t)).join("")}</div>`;
     if(groups.prox.length) h+=`<div class="group-label">Próximas</div><div class="list">${groups.prox.map(t=>taskHTML(t)).join("")}</div>`;
     if(groups.sin.length) h+=`<div class="group-label">Sin fecha</div><div class="list">${groups.sin.map(t=>taskHTML(t)).join("")}</div>`;
@@ -522,17 +606,18 @@ function render(){
     list.innerHTML=`<div class="list">${items.map(t=>taskHTML(t)).join("")}</div>`;
   }
   bindTaskEvents(list);
+  bindFinales(list);
 }
 
 function taskHTML(t, completed=false){
-  const cd=countdownLabel(t.fecha); const col=catColor(t.categoria);
+  const cd=countdownLabel(t.fecha); const col=catColor(t.categoria); const hora=horaParte(t.fecha);
   return `<div class="task ${completed?"completed":""}" data-id="${t.id}" style="--accent:${col}">
     <button class="check ${completed?"done":""}" data-act="toggle"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <div class="task-body">
       <div class="task-title">${escapeHtml(t.titulo)}</div>
       <div class="task-meta">
         <span class="badge" style="background:${hexA(col,.16)}; color:${shade(col)}"><span class="swatch" style="background:${col}"></span>${escapeHtml(t.categoria)}</span>
-        ${cd?`<span class="countdown ${cd.cls}">${ICON_CLOCK} ${cd.txt}</span>`:""}
+        ${cd?`<span class="countdown ${cd.cls}">${ICON_CLOCK} ${cd.txt}${hora?` · ${hora}`:""}</span>`:(hora?`<span class="countdown">${ICON_CLOCK} ${hora}</span>`:"")}
       </div>
     </div>
     ${completed?`<button class="del" data-act="delete">${ICON_TRASH}</button>`:""}
@@ -551,7 +636,8 @@ function openEdit(tid){
   $("#addTitle").textContent="Editar tarea";
   $("#saveTask").textContent="Guardar cambios";
   $("#inTitle").value=t.titulo;
-  $("#inDate").value=t.fecha||"";
+  $("#inDate").value=fechaParte(t.fecha);
+  $("#inTime").value=horaParte(t.fecha);
   selectedCat=t.categoria; renderCatChips();
   openSheet("#sheetAdd");
 }
@@ -591,7 +677,8 @@ function deleteTask(tid){
 function addTask(){
   const titulo=$("#inTitle").value.trim(); if(!titulo){toast("Escribí un título");return;}
   if(!selectedCat)selectedCat=cats[0]?.nombre;
-  const fecha=$("#inDate").value||"";
+  const f=$("#inDate").value, h=$("#inTime").value;
+  const fecha = f ? (h ? f+"T"+h : f) : "";
   if(editingId){
     const t=tasks.find(x=>x.id===editingId);
     if(t){ t.titulo=titulo; t.categoria=selectedCat; t.fecha=fecha;
@@ -679,7 +766,7 @@ function celebrate(){ const m=$("#mascotHeader .mascot"); if(m){ m.classList.rem
 
 $("#mascotHeader").innerHTML = mascot("mascot-sm");
 $("#greeting").textContent = greeting()+", Luca";
-$("#fab").onclick=()=>{ editingId=null; $("#addTitle").textContent="Nueva tarea"; $("#saveTask").textContent="Agregar"; $("#inTitle").value=""; $("#inDate").value=""; selectedCat=activeTab!=="__all__"?activeTab:cats[0]?.nombre; renderCatChips(); openSheet("#sheetAdd"); setTimeout(()=>$("#inTitle").focus(),300); };
+$("#fab").onclick=()=>{ editingId=null; $("#addTitle").textContent="Nueva tarea"; $("#saveTask").textContent="Agregar"; $("#inTitle").value=""; $("#inDate").value=""; $("#inTime").value=""; selectedCat=(activeTab!=="__all__"&&activeTab!=="__fin__")?activeTab:cats[0]?.nombre; renderCatChips(); openSheet("#sheetAdd"); setTimeout(()=>$("#inTitle").focus(),300); };
 $("#saveTask").onclick=addTask;
 $("#btnDone").onclick=()=>{ renderDone(); openSheet("#sheetDone"); };
 $("#btnCats").onclick=()=>{ selectedColor=PALETTE[cats.length%PALETTE.length]; renderCatList(); renderColorPicker(); openSheet("#sheetCats"); };
@@ -688,10 +775,11 @@ $("#saveCatEdit").onclick=saveCatEdit;
 $("#overlay").onclick=closeSheets;
 $("#inTitle").addEventListener("keydown",e=>{if(e.key==="Enter")addTask();});
 document.querySelectorAll(".date-quick button").forEach(b=>b.onclick=()=>{
-  if(b.dataset.days==="clear"){$("#inDate").value="";return;}
+  if(b.dataset.days==="clear"){$("#inDate").value="";$("#inTime").value="";return;}
   const x=new Date(); x.setDate(x.getDate()+ +b.dataset.days); $("#inDate").value=x.toISOString().slice(0,10);
 });
 
+if(!API_URL) ensureFinales();   // en modo API se asegura tras bootstrap (evita duplicar)
 updateSyncDot();
 render();
 flush().then(bootstrap);   // sube pendientes, luego trae la verdad del Sheet

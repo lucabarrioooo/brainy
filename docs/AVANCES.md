@@ -4,6 +4,20 @@ Registro cronológico del estado del proyecto.
 
 ---
 
+## 2026-06-28 — DEPLOY a GitHub Pages ✅
+
+- ✅ Repo creado: https://github.com/lucabarrioooo/brainy (público).
+- ✅ `index.html` copiado a la raíz del repo (Pages sirve desde main / root).
+- ✅ GitHub Pages activado y verificado ONLINE.
+- 🌐 **URL en vivo: https://lucabarrioooo.github.io/brainy/**
+- Cuenta GitHub: lucabarrioooo. Git configurado global (lucabarrio11@gmail.com).
+- Decisión: repo PÚBLICO (Pages gratis lo requiere); la API_URL queda visible.
+  Aceptado por Luca (tareas personales, no sensibles). Token = mejora futura.
+- ⬜ PENDIENTE: instalar en el iPhone (Safari → Compartir → Agregar a inicio).
+- ⬜ Para actualizar la web a futuro: editar, copiar src→raíz, commit y push.
+
+---
+
 ## 2026-06-28 — Mejoras frontend post-auditoría (v4)
 
 Backup anterior en `versiones/index_v3_mascota.html`. Todo sin que Luca toque
