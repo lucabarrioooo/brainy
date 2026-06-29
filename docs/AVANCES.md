@@ -4,6 +4,26 @@ Registro cronológico del estado del proyecto.
 
 ---
 
+## 2026-06-29 — Finales, horario y fix Dynamic Island (v5) — pusheado
+
+Backup anterior en `versiones/index_v4_sync.html`.
+- ✅ **Fix Dynamic Island / línea blanca:** `apple-mobile-web-app-status-bar-style`
+  = black-translucent + `mobile-web-app-capable` + `html { background }` para que
+  el fondo llegue al borde y se integre con el notch/isla.
+- ✅ **Horario opcional:** input `time` en alta/edición. Se guarda DENTRO del campo
+  `fecha` como `YYYY-MM-DDTHH:MM` (NO requiere tocar el backend). Helpers
+  `fechaParte()` / `horaParte()`; countdown y orden usan solo la parte fecha.
+- ✅ **Sección Finales:** categoría especial "Finales" (persistida vía campo
+  categoria, sin tocar backend; `ensureFinales()` la crea si falta). Cuadro
+  destacado en la vista "Todas" con countdown de días en grande, ordenado de la
+  más próxima a la más lejana. Toggle (switch) "En la lista" que decide si los
+  finales se mezclan también en la lista de Todas (persistido en
+  `brainy_fin_todas`, default true).
+- ✅ JS validado con `node --check`. Pusheado a main → online.
+- Nota: "Finales" también aparece como tab/categoría normal (vista filtrada).
+
+---
+
 ## 2026-06-28 — DEPLOY a GitHub Pages ✅
 
 - ✅ Repo creado: https://github.com/lucabarrioooo/brainy (público).
