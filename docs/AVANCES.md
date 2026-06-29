@@ -4,6 +4,18 @@ Registro cronológico del estado del proyecto.
 
 ---
 
+## 2026-06-29 — Ícono propio + PWA (v6) — pusheado
+
+- ✅ Ícono del cerebrito generado como PNG (180/192/512) renderizando
+  `assets/icon_source.html` con Chrome headless (`--screenshot --window-size`).
+  Fuente versionada en `assets/icon_source.html` para regenerar.
+- ✅ `apple-touch-icon` (180) linkeado → ícono real en el home screen de iOS.
+- ✅ `manifest.json` (raíz) con iconos 192/512 (any + maskable) para PWA.
+- ✅ Verificado online en Pages. Comando para regenerar iconos:
+  `chrome --headless --disable-gpu --screenshot="assets/icon-<N>.png" --window-size=<N>,<N> file:///.../assets/icon_source.html`
+
+---
+
 ## 2026-06-29 — Finales, horario y fix Dynamic Island (v5) — pusheado
 
 Backup anterior en `versiones/index_v4_sync.html`.

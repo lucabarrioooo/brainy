@@ -142,6 +142,15 @@
   .switch input:checked + .slider { background: var(--sage); border-color: var(--sage); }
   .switch input:checked + .slider::after { transform: translateX(16px); }
   .switch .sw-txt { font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
+  .fin-actions { display: flex; align-items: center; gap: 10px; }
+  .fin-collapse { border: none; background: none; color: var(--ink-soft); cursor: pointer; padding: 4px; display: grid; place-items: center; transition: transform .25s var(--ease); }
+  .fin-collapse svg { width: 19px; height: 19px; }
+  .fin-collapse.closed { transform: rotate(-90deg); }
+  .fin-collapse:active { opacity: .5; }
+  .finales-card.collapsed { padding: 12px 16px; cursor: pointer; margin-bottom: 4px; }
+  .finales-card.collapsed .finales-head { margin-bottom: 0; }
+  .fin-badge { font-family: var(--serif); font-size: 14px; background: rgba(160,128,111,.18); color: #8a5a44; border-radius: 999px; padding: 1px 9px; margin-left: 4px; }
+  .fin-hint { flex: 1; text-align: right; margin-right: 6px; font-size: 12.5px; color: var(--ink-soft); }
 
   /* ---------- Lista ---------- */
   .group-label { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--ink-soft); margin: 22px 4px 2px; animation: fadeIn .4s ease backwards; }
@@ -463,6 +472,7 @@ let editingId = null;
 let loaded = !API_URL;   // en modo local ya está "cargado"
 const FINALES = "Finales";
 let finalesEnTodas = DB._read("brainy_fin_todas", true);
+let finalesColapsado = DB._read("brainy_fin_colapsado", false);
 const $ = s => document.querySelector(s);
 
 /* Asegura que exista la categoría especial "Finales". */
@@ -477,10 +487,24 @@ function fmtFecha(f){
   const p=d.split("-"); const mes=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][(+p[1])-1];
   return `${+p[2]} ${mes}`;
 }
+const ICON_CHEVRON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
 function renderFinalesCard(){
   const fin = tasks.filter(t=>!t.completada && t.categoria===FINALES && t.fecha);
   if(fin.length===0) return "";
   fin.sort((a,b)=> daysUntil(a.fecha)-daysUntil(b.fecha));
+
+  if(finalesColapsado){
+    const prox = daysUntil(fin[0].fecha);
+    const hint = prox===0?"hoy":(prox===1?"mañana":(prox>1?`en ${prox} días`:"vencido"));
+    return `<div class="finales-card collapsed" id="finCardMini">
+      <div class="finales-head">
+        <div class="finales-title">🎓 Finales <span class="fin-badge">${fin.length}</span></div>
+        <span class="fin-hint">el próximo ${hint}</span>
+        <button class="fin-collapse closed" id="finCollapse" aria-label="Expandir Finales">${ICON_CHEVRON}</button>
+      </div>
+    </div>`;
+  }
+
   const items = fin.map(t=>{
     const n=daysUntil(t.fecha), hora=horaParte(t.fecha);
     let big, unit;
@@ -495,7 +519,10 @@ function renderFinalesCard(){
   return `<div class="finales-card">
     <div class="finales-head">
       <div class="finales-title">🎓 Finales</div>
-      <label class="switch"><input type="checkbox" id="finToggle" ${finalesEnTodas?"checked":""}><span class="slider"></span><span class="sw-txt">En la lista</span></label>
+      <div class="fin-actions">
+        <label class="switch"><input type="checkbox" id="finToggle" ${finalesEnTodas?"checked":""}><span class="slider"></span><span class="sw-txt">En la lista</span></label>
+        <button class="fin-collapse" id="finCollapse" aria-label="Minimizar Finales">${ICON_CHEVRON}</button>
+      </div>
     </div>
     <div class="finales-list">${items}</div>
   </div>`;
@@ -503,6 +530,10 @@ function renderFinalesCard(){
 function bindFinales(c){
   const ft=c.querySelector("#finToggle");
   if(ft) ft.onchange=()=>{ finalesEnTodas=ft.checked; DB._write("brainy_fin_todas", finalesEnTodas); toast(finalesEnTodas?"Finales en la lista":"Finales solo en su sección"); render(); };
+  const fc=c.querySelector("#finCollapse");
+  if(fc) fc.onclick=()=>{ finalesColapsado=!finalesColapsado; DB._write("brainy_fin_colapsado", finalesColapsado); render(); };
+  const mini=c.querySelector("#finCardMini");
+  if(mini) mini.onclick=(e)=>{ if(e.target.closest("#finCollapse"))return; finalesColapsado=false; DB._write("brainy_fin_colapsado", finalesColapsado); render(); };
   c.querySelectorAll(".final-item").forEach(el=> el.onclick=()=>openEdit(el.dataset.id));
 }
 
@@ -599,12 +630,13 @@ function render(){
   }
 
   if(activeTab==="__all__"){
-    let h=finCard;
+    let h="";
     const groups={hoy:[],prox:[],sin:[]};
     items.forEach(t=>{ const n=daysUntil(t.fecha); if(t.fecha&&n<=0)groups.hoy.push(t); else if(t.fecha)groups.prox.push(t); else groups.sin.push(t); });
     if(groups.hoy.length) h+=`<div class="group-label">Hoy</div><div class="list">${groups.hoy.map(t=>taskHTML(t)).join("")}</div>`;
     if(groups.prox.length) h+=`<div class="group-label">Próximas</div><div class="list">${groups.prox.map(t=>taskHTML(t)).join("")}</div>`;
     if(groups.sin.length) h+=`<div class="group-label">Sin fecha</div><div class="list">${groups.sin.map(t=>taskHTML(t)).join("")}</div>`;
+    h+=finCard;   // el cuadro de Finales va abajo de todo
     list.innerHTML=h;
   } else {
     list.innerHTML=`<div class="list">${items.map(t=>taskHTML(t)).join("")}</div>`;
