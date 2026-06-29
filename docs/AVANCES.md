@@ -4,6 +4,15 @@ Registro cronológico del estado del proyecto.
 
 ---
 
+## 2026-06-29 — Cuadro Finales: abajo + minimizar (v7) — pusheado
+
+- ✅ El cuadro de Finales se movió al FINAL de la vista "Todas" (antes arriba).
+- ✅ Botón minimizar/expandir (chevron). Colapsado muestra solo "🎓 Finales" +
+  badge con cantidad + hint del próximo vencimiento; clickeable para expandir.
+  Estado en `brainy_fin_colapsado`. JS validado, pusheado.
+
+---
+
 ## 2026-06-29 — Ícono propio + PWA (v6) — pusheado
 
 - ✅ Ícono del cerebrito generado como PNG (180/192/512) renderizando
