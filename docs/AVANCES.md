@@ -4,6 +4,15 @@ Registro cronológico del estado del proyecto.
 
 ---
 
+## 2026-06-29 — Fix header tapado por el notch (v8) — pusheado
+
+- ✅ El logo/header quedaba cortado bajo el Dynamic Island con black-translucent.
+  Se sacó el padding safe-area del `body` y se puso en `.app` con margen
+  garantizado: `calc(env(safe-area-inset-top) + 16px)` arriba, `max(18px, inset)`
+  a los lados, `calc(130px + inset-bottom)` abajo. Header padding-top reducido a 8px.
+
+---
+
 ## 2026-06-29 — Cuadro Finales: abajo + minimizar (v7) — pusheado
 
 - ✅ El cuadro de Finales se movió al FINAL de la vista "Todas" (antes arriba).
